@@ -1,0 +1,19 @@
+name: terraform
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  validate:
+    strategy:
+      matrix:
+        env: [nonprod, prod]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
+      - run: terraform fmt -check -recursive
+      - run: terraform -chdir=environments/${{ matrix.env }} init -backend=false
+      - run: terraform -chdir=environments/${{ matrix.env }} validate
